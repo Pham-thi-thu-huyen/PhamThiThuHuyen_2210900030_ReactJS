@@ -1,26 +1,38 @@
-import React, { useState } from 'react'
+import React, { useState,useEffect } from 'react'
 //import axios from '/api/PtthApi';
 import axios from '../api/PtthApi';
 
 
-export default function PtthCategoryForm({onCloseForm, onCategorySubmit}) {
+export default function PtthCategoryForm({onCloseForm, onCategorySubmit,renderPtthCategory}) {
     //state
-     const[ptthCategoryname, setptthCategoryname] = useState();
+    const [ptthId,setPtthId]=useState(0);
+     const[ptthCategoryname, setptthCategoryname] = useState("");
      const[ptthCategoriesStatus, setPtthCategoriesStatus] = useState(true);
    
+    useEffect(()=>{
+        setPtthId(renderPtthCategory.ptthId);
+        setptthCategoryname(renderPtthCategory.ptthCategoryname);
+        setPtthCategoriesStatus(renderPtthCategory.ptthCategoriesStatus);
 
+    },[renderPtthCategory]);
     const ptthHandleClose = ()=>{
         onCloseForm(false);
     }
     const ptthHandleSubmit = async(event)=>{
         event.preventDefault();
         let ptthData = {
-            ptthId:0,
+            ptthId:ptthId,
             ptthCategoryname:ptthCategoryname,
             ptthCategoryStatus:ptthCategoriesStatus
         }
         console.log("ptthCategory",ptthData);
-        await axios.post("/PtthCategory",ptthData);
+        if(ptthId === 0){ // thêm
+            
+            await axios.post("/PtthCategory",ptthData);
+        }else{// sửa          
+            await axios.put(`/PtthCategory/${renderPtthCategory.ptthId}`,ptthData);
+            
+        }
         onCategorySubmit(ptthData);
     }
     return (
